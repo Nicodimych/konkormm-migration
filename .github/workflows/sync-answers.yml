@@ -1,0 +1,81 @@
+name: Синхронизация ответов в Issues
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'QUESTIONS.md'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync-answers-to-issues:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout репозитория
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          
+      - name: Найти измененные ответы
+        id: find-answers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const content = fs.readFileSync('QUESTIONS.md', 'utf8');
+            
+            // Ищем все вопросы с номерами Issues
+            const questionRegex = /### ❓ (\d+)\. (.*?)\n\n\*\*Автор:\*\* (.*?)\n\*\*Вопрос:\*\*(.*?)\n\*\*Статус:\*\* (.*?)\n\*\*Дедлайн:\*\* (.*?)\n\*\*GitHub Issue:\*\* #(\d+)\n\n\*\*Ответ:\*\*(.*?)(?=\n---|\n### ❓|\n## |$)/gs;
+            
+            const matches = [...content.matchAll(questionRegex)];
+            
+            for (const match of matches) {
+              const issueNumber = match[7];
+              const answer = match[8].trim();
+              
+              // Проверяем что ответ не пустой и не дефолтный
+              if (answer && !answer.includes('_Здесь появится ответ') && answer.length > 50) {
+                console.log(`Найден ответ на Issue #${issueNumber}`);
+                
+                // Проверяем есть ли уже такой комментарий
+                const comments = await github.rest.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber
+                });
+                
+                // Ищем комментарий с ответом от бота
+                const existingAnswer = comments.data.find(c => 
+                  c.user.login === 'github-actions[bot]' && 
+                  c.body.includes('## 🤖 Ответ от AI-консультанта')
+                );
+                
+                const formattedAnswer = `## 🤖 Ответ от AI-консультанта\n\n${answer}`;
+                
+                if (existingAnswer) {
+                  // Обновляем существующий комментарий
+                  await github.rest.issues.updateComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    comment_id: existingAnswer.id,
+                    body: formattedAnswer
+                  });
+                  console.log(`Обновлен ответ в Issue #${issueNumber}`);
+                } else {
+                  // Создаем новый комментарий
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    body: formattedAnswer
+                  });
+                  console.log(`Добавлен ответ в Issue #${issueNumber}`);
+                }
+              }
+            }
+
