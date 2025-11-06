@@ -1,0 +1,41 @@
+# Игнорируемые файлы для проекта миграции
+
+# Временные файлы
+*.tmp
+*.bak
+*.swp
+*~
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Логи
+*.log
+
+# Конфиденциальные данные (НЕ коммитить!)
+**/credentials.json
+**/api_keys.txt
+**/passwords.txt
+**/*_private.md
+
+# Выгрузки данных (большие файлы)
+*.dt
+*.cf
+*.epf
+*.erf
+**/data_export/
+
+# Старые версии документов
+**/*_old.md
+**/*_backup.md
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Специфичные для 1С
+**/*.mxlx.bak
+
