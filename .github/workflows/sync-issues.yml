@@ -29,50 +29,32 @@ jobs:
           
       - name: Добавить вопрос в QUESTIONS.md
         run: |
-          QUESTION_NUMBER=$(grep -c "^### ❓" QUESTIONS.md || echo 0)
-          NEXT_NUMBER=$((QUESTION_NUMBER + 1))
+          # Добавляем вопрос в конец файла
+          echo "" >> QUESTIONS.md
+          echo "---" >> QUESTIONS.md
+          echo "" >> QUESTIONS.md
+          echo "### ❓ ${{ github.event.issue.number }}. ${{ github.event.issue.title }}" >> QUESTIONS.md
+          echo "" >> QUESTIONS.md
+          echo "**Автор:** @${{ github.event.issue.user.login }}" >> QUESTIONS.md
+          echo "**Вопрос:**" >> QUESTIONS.md
+          echo "" >> QUESTIONS.md
+          echo "${{ github.event.issue.body }}" >> QUESTIONS.md
+          echo "" >> QUESTIONS.md
+          echo "**Статус:** ⏳ Ожидание ответа" >> QUESTIONS.md
+          echo "**Дедлайн:** TBD" >> QUESTIONS.md
+          echo "**GitHub Issue:** #${{ github.event.issue.number }}" >> QUESTIONS.md
+          echo "" >> QUESTIONS.md
+          echo "**Ответ:**" >> QUESTIONS.md
+          echo "_Здесь появится ответ от AI-консультанта и команды_" >> QUESTIONS.md
+          echo "" >> QUESTIONS.md
           
-          cat >> QUESTIONS.md << 'EOF'
-          
-          ---
-          
-          ### ❓ ${{ steps.issue.outputs.ISSUE_NUMBER }}. ${{ github.event.issue.title }}
-          
-          **Автор:** @${{ steps.issue.outputs.ISSUE_AUTHOR }}  
-          **Вопрос:** 
-          
-          ${{ github.event.issue.body }}
-          
-          **Статус:** ⏳ Ожидание ответа  
-          **Дедлайн:** TBD  
-          **GitHub Issue:** #${{ github.event.issue.number }}
-          
-          **Ответ:**
-          _Здесь появится ответ от AI-консультанта и команды_
-          
-          EOF
-          
-      - name: Создать Pull Request с вопросом
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Добавлен вопрос #${{ github.event.issue.number }} в QUESTIONS.md"
-          branch: issue-${{ github.event.issue.number }}
-          title: "Вопрос #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
-          body: |
-            ## Автоматическое добавление вопроса из Issue
-            
-            Этот PR автоматически создан для синхронизации вопроса из Issue #${{ github.event.issue.number }} в файл `QUESTIONS.md`.
-            
-            **Действия:**
-            1. Проверьте вопрос в `QUESTIONS.md`
-            2. Добавьте ответ в раздел "Ответ:"
-            3. Approve и Merge этот PR
-            4. Ответ автоматически появится в Issue
-            
-            **Оригинальный Issue:** #${{ github.event.issue.number }}
-            **Автор:** @${{ github.event.issue.user.login }}
-          labels: вопрос
+      - name: Закоммитить изменения
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add QUESTIONS.md
+          git commit -m "Автоматически добавлен вопрос #${{ github.event.issue.number }} из Issue"
+          git push
           
       - name: Добавить комментарий в Issue
         uses: actions/github-script@v7
