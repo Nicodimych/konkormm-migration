@@ -50,6 +50,8 @@ desktop.ini
 .vscode/
 .idea/
 *.code-workspace
+.cursor/
+.metadata/
 
 # Специфичные для 1С
 **/*.mxlx.bak
