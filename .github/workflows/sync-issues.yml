@@ -1,0 +1,87 @@
+name: Синхронизация Issues в QUESTIONS.md
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync-issue-to-questions:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout репозитория
+        uses: actions/checkout@v4
+        
+      - name: Получить данные Issue
+        id: issue
+        run: |
+          echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+          echo "ISSUE_BODY<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ github.event.issue.body }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "ISSUE_AUTHOR=${{ github.event.issue.user.login }}" >> $GITHUB_OUTPUT
+          
+      - name: Добавить вопрос в QUESTIONS.md
+        run: |
+          QUESTION_NUMBER=$(grep -c "^### ❓" QUESTIONS.md || echo 0)
+          NEXT_NUMBER=$((QUESTION_NUMBER + 1))
+          
+          cat >> QUESTIONS.md << 'EOF'
+          
+          ---
+          
+          ### ❓ ${{ steps.issue.outputs.ISSUE_NUMBER }}. ${{ github.event.issue.title }}
+          
+          **Автор:** @${{ steps.issue.outputs.ISSUE_AUTHOR }}  
+          **Вопрос:** 
+          
+          ${{ github.event.issue.body }}
+          
+          **Статус:** ⏳ Ожидание ответа  
+          **Дедлайн:** TBD  
+          **GitHub Issue:** #${{ github.event.issue.number }}
+          
+          **Ответ:**
+          _Здесь появится ответ от AI-консультанта и команды_
+          
+          EOF
+          
+      - name: Создать Pull Request с вопросом
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Добавлен вопрос #${{ github.event.issue.number }} в QUESTIONS.md"
+          branch: issue-${{ github.event.issue.number }}
+          title: "Вопрос #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+          body: |
+            ## Автоматическое добавление вопроса из Issue
+            
+            Этот PR автоматически создан для синхронизации вопроса из Issue #${{ github.event.issue.number }} в файл `QUESTIONS.md`.
+            
+            **Действия:**
+            1. Проверьте вопрос в `QUESTIONS.md`
+            2. Добавьте ответ в раздел "Ответ:"
+            3. Approve и Merge этот PR
+            4. Ответ автоматически появится в Issue
+            
+            **Оригинальный Issue:** #${{ github.event.issue.number }}
+            **Автор:** @${{ github.event.issue.user.login }}
+          labels: вопрос
+          
+      - name: Добавить комментарий в Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Ваш вопрос добавлен в файл QUESTIONS.md и синхронизирован с локальным проектом.\n\nОтвет появится в ближайшее время и будет виден как здесь, так и в основном плане проекта.\n\n📖 Отслеживать можно в Pull Request, который будет создан автоматически.'
+            })
+
