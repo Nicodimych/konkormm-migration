@@ -91,8 +91,8 @@
 **1. Создайте Issue:** https://github.com/Nicodimych/konkormm-migration/issues/new
 
 **2. Что произойдет автоматически:**
-- ✅ Ваш вопрос добавится в файл `QUESTIONS.md`
-- ✅ Создастся Pull Request
+- ✅ Ваш вопрос добавится в файл `QUESTIONS.md` (~30 секунд)
+- ✅ Изменения сохранятся на GitHub
 - ✅ AI-консультант проанализирует вопрос
 - ✅ Ответ появится в том же Issue
 
