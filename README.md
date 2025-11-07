@@ -71,6 +71,12 @@
 - [ ] Собрать API ключи сайтов (konkor-optika.ru, woodlook.store)
 - [ ] Назначить ответственного за проект
 
+## 🧪 Тестовые стенды
+- `http://chipfile.link.1c.ru/hospitaldemo`
+- `http://chipfile.link.1c.ru/poliklinikademo`
+- `http://chipfile.link.1c.ru/medicinastomatologiceskaa-klinika-demo`
+- `https://app112219.1capp.net/1SSalon-optiki`
+
 ## 🔗 Полезные ссылки
 
 - [Прайс-лист 1С:Салон оптики](https://solutions.1c.ru/catalog/optics/buy)
