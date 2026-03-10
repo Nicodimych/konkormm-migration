@@ -64,6 +64,6 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ Ваш вопрос добавлен в файл QUESTIONS.md и синхронизирован с локальным проектом.\n\nОтвет появится в ближайшее время и будет виден как здесь, так и в основном плане проекта.\n\n📖 Отслеживать можно в Pull Request, который будет создан автоматически.'
+              body: '✅ Ваш вопрос автоматически добавлен в файл QUESTIONS.md.\n\nОтвет появится в ближайшее время (обычно в течение нескольких часов) и будет виден:\n- В этом Issue\n- В файле QUESTIONS.md на GitHub\n\n📖 Отслеживать: https://github.com/Nicodimych/konkormm-migration/blob/master/QUESTIONS.md'
             })
 
